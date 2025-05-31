@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ache o link</title>
+
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            box-sizing: border-box;
+            min-height: 100vh;
+            background: url(/imgs/background.webp);
+            background-size: contain;
+            background-position: center;
+            color: aliceblue;
+        }
+        header{
+            background-color: rgba(50, 20, 54, 0.637);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        header button{
+            border: 0;
+            border-radius: 10px;
+            padding: 5px 10px;
+            margin: 5px;
+            font-size: 1.5em;
+            color: white;
+            background-color: rgba(127, 141, 64, 0.541);
+        }
+        header button:hover{
+            scale: 1.05;
+            background-color: rgba(127, 141, 64, 0.8);
+        }
+        main{
+            background-color: rgba(12, 9, 58, 0.425);
+            padding: 25px;
+            margin: 0px 50px 20px;
+            min-height: 80vh;
+        }
+        #jogo{
+            display: flex;
+            align-content: baseline;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-height: 95%;
+        }
+        .link{
+            padding: 5px;
+            margin: 5px 10px;
+            cursor: pointer;
+            user-select: none;
+            transition: .5;
+        }
+        .link:hover{
+            scale: 1.05;
+        }
+        #nTentativas{
+            font-size: 1.5em;
+        }
+        #barraTempo{
+            overflow: hidden;
+            border-radius: 20px;
+            margin: 5px 0px;
+        }
+        #tempoRestante{
+            height: 20px;
+            width: 100%;
+            background: linear-gradient(90deg, red, rgb(152, 255, 152),rgb(152, 255, 152));
+        }
+
+        #containerComoJogar{
+            display: none;
+            background-color: rgba(6, 21, 48, 0.699);
+            backdrop-filter: blur(5px);
+            width: 100%;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            text-align: center;
+        }
+        #comoJogar{
+            margin: 5% auto;
+            display: block;
+            border-color: rgba(233, 203, 37, 0.705);
+            border-radius: 15px;
+            background-color: rgba(5, 8, 27, 0.863);
+            color: aliceblue;
+            width: 40%;
+            text-align: center;
+            font-size: 1.5em;
+            text-shadow: 0px 0px 4px black;
+        }
+        #comoJogar button{
+            color: aliceblue;
+            background-color: rgba(153, 115, 17, 0.637);
+            width: 100%;
+            padding: 5px 0px;
+            border: 0;
+            border-radius: 10px;
+        }
+
+        .erro{
+            animation: erro 0.5s forwards;
+        }
+        .certo{
+            color: lime;
+            background-color: rgb(246, 255, 246);
+        }
+        .certo:hover{
+            color: lime;
+        }
+
+        @keyframes erro {
+            0%, 100%{
+                rotate: 0deg;
+            }
+            50%{
+                rotate: 15deg;
+            }
+            75%{
+                rotate: -5deg;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Ache o infectado!</h1>
+        <nav>
+            <button onclick="dificuldade(0)">Fácil</button>
+            <button onclick="dificuldade(1)">Médio</button>
+            <button onclick="dificuldade(2)">Difícil</button>
+            <button onclick="dificuldade(3)">Impossível</button>
+        </nav>
+        <button onclick="document.getElementById('containerComoJogar').style.display = 'block'">Como jogar?</button>
+    </header>
+    <div id="containerComoJogar">
+        <dialog id="comoJogar">
+                <p>Clique na dificuldade desejada para jogar <br>
+                Clique em diferentes monstros até achar o infectado!<br></p>
+                Ache antes do tempo acabar!
+                <p>
+                    Dificuldades:
+                    <ul>
+                        <li>Fácil - 40s, 20 monstros</li>
+                        <li>Médio - 75s, 75 monstros</li>
+                        <li>Difícil - 150s, 200 monstros</li>
+                        <li>Impossível - 180s, 400 monstros</li>
+                    </ul>
+                </p>
+                <button onclick="document.getElementById('containerComoJogar').style.display = 'none'">Fechar</button>
+        </dialog>
+    </div>
+    <main>
+        <p id="nTentativas">Tentativas: 0</p>
+        <div id="barraTempo">
+            <div id="tempoRestante"></div>
+        </div>
+    
+        <div id="jogo">
+    
+        </div>
+    </main>
+
+
+    <script>
+        let tentativas = 0
+        let jogando = false
+        let porcentagemRestante = 100
+
+        function dificuldade(i){
+            var nLinks = 1
+            var tempo = 1
+            switch(i){
+                case 0:
+                    nLinks = 20
+                    tempo = 40
+                    
+                    break;
+                case 1:
+                    nLinks = 75
+                    tempo = 75
+                    break;
+                case 2:
+                    nLinks = 200
+                    tempo = 150
+                    break;
+                case 3:
+                    nLinks = 400
+                    tempo = 180
+                    break;
+            }
+
+            carrregarJogo(nLinks, tempo)
+        }
+
+        function carrregarJogo(nLinks, tempo){
+            let linkCerto = Math.floor(Math.random()*nLinks)
+            jogando = true
+            tentativas = 0
+
+            document.getElementById("jogo").innerHTML = ""
+            document.getElementById("nTentativas").innerText = "Tentativas: "+ tentativas
+
+            for(let i = 0; i < nLinks; i++){
+                const img = document.createElement("img")
+                img.style.width = "55px"
+                img.style.height = "60px"
+                img.src = "imgs/Wandering_Husk_Idle.webp"
+                img.setAttribute("onclick", `linkErrado(${i})`)
+                img.classList.add("link")
+                img.setAttribute("draggable", "false")
+
+                if(i == linkCerto){
+                    img.setAttribute("onclick", `ganhar(${linkCerto})`)
+                }
+                document.getElementById("jogo").appendChild(img)
+            }
+
+            atualizarTempo()
+        }
+        function atualizarTempo(){
+            if(jogando){
+                document.getElementById("tempoRestante").style.width = porcentagemRestante+"%"
+                setTimeout(diminuirTempo,1000)
+            }
+        }
+
+        function diminuirTempo(){
+            porcentagemRestante--
+            if(porcentagemRestante == 0){
+                perder()
+                return
+            }
+            atualizarTempo()
+        }
+
+        function linkErrado(nth){
+            if(jogando){
+                tentativas++
+                document.getElementsByClassName("link")[nth].classList.add("erro")
+                setTimeout(() => {document.getElementsByClassName("link")[nth].classList.remove("erro")}, 500)
+                document.getElementById("nTentativas").innerText = "Tentativas: "+ tentativas
+            }
+        }
+
+        function mostrarFimDeJogo(){
+            document.getElementById("nTentativas").innerText = "Tentativas: "+ tentativas
+
+            if(!jogando){
+                document.getElementById("nTentativas").innerText = "Você ganhou após "+ tentativas + " tentativas!"
+                tentativas = 1
+            }
+        }
+
+        function ganhar(iLinkCerto){
+            if(!jogando) return
+            tentativas++
+            document.getElementsByClassName("link")[iLinkCerto].src = '/imgs/Violent_Husk_idle.webp'
+            jogando = false
+            mostrarFimDeJogo()
+        }
+
+
+        function perder(){
+            jogando = false
+            alert("VOCÊ PERDEU!!!!")
+            mostrarFimDeJogo()
+        }
+    </script>
+</body>
+</html>
