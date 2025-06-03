@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ache o link</title>
+    <title>Ache o infectado!</title>
 
     <style>
         body{
@@ -12,13 +12,14 @@
             font-family: sans-serif;
             box-sizing: border-box;
             min-height: 100vh;
-            background: url(imgs/background.webp);
+            background: url(/imgs/background.webp);
             background-size: contain;
             background-position: center;
+            background-attachment: fixed;
             color: aliceblue;
         }
         header{
-            background-color: rgba(50, 20, 54, 0.637);
+            background-color: #102846bb;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -36,6 +37,9 @@
         header button:hover{
             scale: 1.05;
             background-color: rgba(127, 141, 64, 0.8);
+        }
+        nav{
+            text-align: center;
         }
         main{
             background-color: rgba(12, 9, 58, 0.425);
@@ -72,6 +76,8 @@
             height: 20px;
             width: 100%;
             background: linear-gradient(90deg, red, rgb(152, 255, 152),rgb(152, 255, 152));
+            background-attachment: fixed;
+            transition: 1s linear;
         }
 
         #containerComoJogar{
@@ -104,6 +110,27 @@
             border: 0;
             border-radius: 10px;
         }
+        footer{
+            padding: 20px 0px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: #102846c0;
+            align-content: center;
+            text-align: center;
+        }
+        footer a{
+            color: aliceblue;
+            margin: 10px;
+            display: block;
+        } 
+        footer a:hover{
+            color: rgb(248, 248, 138);
+        }
+        #contatos, #desenvolvedores{
+            align-content: center;
+            
+        }
 
         .erro{
             animation: erro 0.5s forwards;
@@ -114,6 +141,17 @@
         }
         .certo:hover{
             color: lime;
+        }
+
+        @media (max-width: 600px) {
+            main{
+                margin: 0;
+                margin-bottom: 20px;
+            }
+            #comoJogar{
+                width: 80%;
+                font-size: 1.4em;
+            }
         }
 
         @keyframes erro {
@@ -148,10 +186,10 @@
                 <p>
                     Dificuldades:
                     <ul>
-                        <li>Fácil - 40s, 20 monstros</li>
-                        <li>Médio - 75s, 75 monstros</li>
-                        <li>Difícil - 150s, 200 monstros</li>
-                        <li>Impossível - 180s, 400 monstros</li>
+                        <li>Fácil - 25s, 25 monstros</li>
+                        <li>Médio - 50s, 75 monstros</li>
+                        <li>Difícil - 100s, 200 monstros</li>
+                        <li>Impossível - 135s, 400 monstros</li>
                     </ul>
                 </p>
                 <button onclick="document.getElementById('containerComoJogar').style.display = 'none'">Fechar</button>
@@ -167,78 +205,115 @@
     
         </div>
     </main>
-
+    <footer>
+        <div id="contatos">
+            <a target="_blank" href="https://github.com/FelipeGSG">Github Educacional</a>
+            <a target="_blank" href="https://github.com/Felipe-Gabriel-Souza-Goncalves">Github Pessoal</a>
+        </div>
+        <div id="somativa">
+            <p>Veja mais jogos no portifólio!</p>
+            <a target="_blank" href="https://felipegsg.github.io/Portifolio-jogos/">Portifólio de jogos</a>
+        </div>
+    </footer>
 
     <script>
+        const infectados = [
+            ["imgs/Wandering_Husk_Idle.webp","imgs/Violent_Husk_idle.webp"],
+            ["imgs/Gruzzer.webp","imgs/Violent_Gruzzer.webp"],
+            ["imgs/Vengefly_Idle.webp","imgs/furious_vengefly.webp"],
+            ["imgs/leaping_Husk.webp","imgs/violent_leaping_husk.webp"],
+        ]
         let tentativas = 0
         let jogando = false
         let porcentagemRestante = 100
+        let tempo = 0
+        let infectado = 0
 
         function dificuldade(i){
             var nLinks = 1
-            var tempo = 1
             switch(i){
                 case 0:
-                    nLinks = 20
-                    tempo = 40
+                    nLinks = 25
+                    tempo = 25
                     
                     break;
                 case 1:
                     nLinks = 75
-                    tempo = 75
+                    tempo = 50
                     break;
                 case 2:
                     nLinks = 200
-                    tempo = 150
+                    tempo = 100
                     break;
                 case 3:
                     nLinks = 400
-                    tempo = 180
+                    tempo = 135
                     break;
             }
 
-            carrregarJogo(nLinks, tempo)
+            carregarJogo(nLinks, tempo)
         }
 
-        function carrregarJogo(nLinks, tempo){
-            let linkCerto = Math.floor(Math.random()*nLinks)
-            jogando = true
+        function carregarJogo(nLinks, tempo){
+            infectado = sortearInfectado()
             tentativas = 0
+            porcentagemRestante = 100
+
+            let linkCerto = Math.floor(Math.random()*nLinks)
+
 
             document.getElementById("jogo").innerHTML = ""
             document.getElementById("nTentativas").innerText = "Tentativas: "+ tentativas
+            document.getElementById("tempoRestante").style.transition = "none"
+            document.getElementById("tempoRestante").style.width = "100%"
+            document.getElementById("tempoRestante").style.transition = "1s linear"
 
             for(let i = 0; i < nLinks; i++){
                 const img = document.createElement("img")
                 img.style.width = "55px"
                 img.style.height = "60px"
-                img.src = "imgs/Wandering_Husk_Idle.webp"
+
+                // ajeitar resolução horrível da imagem
+                if(infectado == 1){
+                    img.style.width = "45px"
+                } else if(infectado == 3){
+                    img.style.width = "40px"
+                    img.style.height = "80px"
+                }
+
+                img.src = infectados[infectado][0]
                 img.setAttribute("onclick", `linkErrado(${i})`)
                 img.classList.add("link")
                 img.setAttribute("draggable", "false")
 
                 if(i == linkCerto){
-                    img.setAttribute("onclick", `ganhar(${linkCerto})`)
+                    img.setAttribute("onclick", `ganhar(${linkCerto}, ${infectado})`)
                 }
+                
                 document.getElementById("jogo").appendChild(img)
             }
 
-            atualizarTempo()
+            jogando = true
+
         }
+
+        function sortearInfectado(){
+            let index = Math.floor(Math.random()*infectados.length)
+            return index
+        }
+
+
         function atualizarTempo(){
-            if(jogando){
-                document.getElementById("tempoRestante").style.width = porcentagemRestante+"%"
-                setTimeout(diminuirTempo,1000)
-            }
+            document.getElementById("tempoRestante").style.width = porcentagemRestante+"%"
         }
 
         function diminuirTempo(){
-            porcentagemRestante--
-            if(porcentagemRestante == 0){
+            porcentagemRestante-= 100/tempo
+            atualizarTempo()
+            if(porcentagemRestante < 0){
                 perder()
                 return
             }
-            atualizarTempo()
         }
 
         function linkErrado(nth){
@@ -250,29 +325,45 @@
             }
         }
 
-        function mostrarFimDeJogo(){
-            document.getElementById("nTentativas").innerText = "Tentativas: "+ tentativas
-
-            if(!jogando){
+        function mostrarFimDeJogo(ganhou = false){
+            if(ganhou){
                 document.getElementById("nTentativas").innerText = "Você ganhou após "+ tentativas + " tentativas!"
-                tentativas = 1
+            } else{
+                document.getElementById("nTentativas").innerText = "Você perdeu mesmo após "+ tentativas + " tentativas!"
             }
+            document.querySelector("img[onclick^=ganhar]").src = infectados[infectado][1]
+            document.getElementById("tempoRestante").style.width = "100%"
+            tentativas = 1
+            porcentagemRestante = 100
         }
 
-        function ganhar(iLinkCerto){
+        function ganhar(iLinkCerto, infectado){
             if(!jogando) return
             tentativas++
-            document.getElementsByClassName("link")[iLinkCerto].src = 'imgs/Violent_Husk_idle.webp'
+            document.getElementsByClassName("link")[iLinkCerto].src = infectados[infectado][1]
+
+            // ajeitar resolução horrível da imagem
+            if(infectado == 3){
+                document.getElementsByClassName("link")[iLinkCerto].style.width = "55px"
+                document.getElementsByClassName("link")[iLinkCerto].style.height = "80px"
+            }
+
+            mostrarFimDeJogo(true)
             jogando = false
-            mostrarFimDeJogo()
         }
 
 
         function perder(){
+            mostrarFimDeJogo()
             jogando = false
             alert("VOCÊ PERDEU!!!!")
-            mostrarFimDeJogo()
         }
+
+        setInterval(() =>{
+            if(jogando){
+                diminuirTempo()
+            }
+        }, 1000)
     </script>
 </body>
 </html>
